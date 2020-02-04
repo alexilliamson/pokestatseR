@@ -1,0 +1,45 @@
+---
+title: "Untitled"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+library(xml2)
+library(tidyverse)
+library(rvest)
+webpage_url <- "https://gamewith.net/pokemon-swordshield/article/show/13923"
+
+
+webpage <- xml2::read_html(webpage_url) %>%
+  html_nodes("table") 
+```
+
+```{r}
+tables_from_page <- webpage %>%
+        map(html_table)#[[3]]
+stats_table <- tables_from_page[3] 
+stats_table <- stats_table[1] 
+stats_table <- stats_table[[1]]
+```
+
+```{r}
+stats_table %>%
+        mutate(tough = H + D + SD,
+               max_attack = pmax(A, SA),
+               strongness = tough + max_attack,
+               offense = max_attack + SPE,
+               alt_total = offense + tough,
+               strongness_rank = dense_rank(desc(strongness)),
+               offense_rank = dense_rank(desc(offense)),
+               alt_total_rank = dense_rank(desc(alt_total))) %>% 
+        head()
+        
+```
+
